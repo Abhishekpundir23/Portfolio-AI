@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, CheckCircle2, GitBranch, FileText, Code, Palette, Database, Download } from "lucide-react";
+import { ArrowRight, Sparkles, CheckCircle2, GitBranch, FileText, Code, Palette, Database, Download, Upload, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -32,6 +32,92 @@ export default function Onboarding() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [portfolioData, setPortfolioData] = useState<any>(null);
   const [editedData, setEditedData] = useState<any>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [isExtractingPdf, setIsExtractingPdf] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePdfUpload = async (file: File) => {
+    if (!file || file.type !== "application/pdf") {
+      alert("Please upload a PDF file.");
+      return;
+    }
+    setPdfFile(file);
+    setIsExtractingPdf(true);
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+      // Extract readable text from PDF binary
+      let text = "";
+      let inStream = false;
+      let streamChunks: number[][] = [];
+      let currentChunk: number[] = [];
+
+      for (let i = 0; i < bytes.length; i++) {
+        if (!inStream) {
+          // Look for "stream" keyword
+          if (bytes[i] === 115 && bytes[i+1] === 116 && bytes[i+2] === 114 &&
+              bytes[i+3] === 101 && bytes[i+4] === 97 && bytes[i+5] === 109) {
+            inStream = true;
+            i += 6;
+            // Skip whitespace after "stream"
+            while (i < bytes.length && (bytes[i] === 10 || bytes[i] === 13)) i++;
+            i--;
+          }
+        } else {
+          // Look for "endstream"
+          if (bytes[i] === 101 && bytes[i+1] === 110 && bytes[i+2] === 100 &&
+              bytes[i+3] === 115 && bytes[i+4] === 116 && bytes[i+5] === 114) {
+            inStream = false;
+            streamChunks.push([...currentChunk]);
+            currentChunk = [];
+            i += 8;
+          } else {
+            currentChunk.push(bytes[i]);
+          }
+        }
+      }
+
+      // Decode text from the full file as fallback
+      const fullText = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+      // Extract text between parentheses (PDF text objects) and BT/ET blocks
+      const parenMatches = fullText.match(/\(([^)]+)\)/g) || [];
+      const extractedParts = parenMatches
+        .map(m => m.slice(1, -1))
+        .filter(s => s.length > 1 && /[a-zA-Z]/.test(s) && !/^[\\\/]/.test(s))
+        .map(s => s.replace(/\\n/g, "\n").replace(/\\r/g, "").replace(/\\\(/g, "(").replace(/\\\)/g, ")"));
+
+      text = extractedParts.join(" ").replace(/\s+/g, " ").trim();
+
+      if (text.length < 50) {
+        // Fallback: grab all printable ASCII sequences
+        const printable = fullText.match(/[\x20-\x7E]{4,}/g) || [];
+        const filtered = printable.filter(s =>
+          /[a-zA-Z]{2,}/.test(s) &&
+          !s.startsWith("/") &&
+          !s.startsWith("<<") &&
+          !s.includes("obj") &&
+          !s.includes("endobj") &&
+          !s.includes("xref") &&
+          !s.includes("stream")
+        );
+        text = filtered.join(" ").replace(/\s+/g, " ").trim();
+      }
+
+      if (text.length > 20) {
+        setPdfText(text.slice(0, 8000));
+      } else {
+        alert("Could not extract enough text from this PDF. Try pasting the content manually in the text box below.");
+        setPdfFile(null);
+      }
+    } catch (err) {
+      console.error("PDF extraction error:", err);
+      alert("Error reading PDF. Try pasting the content manually.");
+      setPdfFile(null);
+    } finally {
+      setIsExtractingPdf(false);
+    }
+  };
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -166,6 +252,65 @@ export default function Onboarding() {
                 <div className="flex items-center gap-4 text-sm text-zinc-600">
                   <div className="h-px bg-zinc-800 flex-1" /><span>OR</span><div className="h-px bg-zinc-800 flex-1" />
                 </div>
+
+                {/* PDF Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-zinc-400 mb-2">Upload PDF Report</label>
+                  {pdfFile ? (
+                    <div className="flex items-center justify-between p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-5 h-5 text-indigo-400" />
+                        <div>
+                          <p className="text-sm font-medium text-white truncate max-w-[250px]">{pdfFile.name}</p>
+                          <p className="text-xs text-indigo-400">Text extracted successfully</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => { setPdfFile(null); setPdfText(""); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                        className="p-1.5 hover:bg-zinc-800 rounded-full transition-colors"
+                        title="Remove file"
+                      >
+                        <X className="w-4 h-4 text-zinc-400" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label
+                      htmlFor="pdf-upload"
+                      onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      onDrop={(e) => { e.preventDefault(); e.stopPropagation(); if (e.dataTransfer.files?.[0]) handlePdfUpload(e.dataTransfer.files[0]); }}
+                      className={`block w-full p-6 border-2 border-dashed rounded-lg text-center cursor-pointer transition-all ${
+                        isExtractingPdf ? "border-indigo-600 bg-indigo-900/20" : "border-zinc-700 hover:border-indigo-500 hover:bg-zinc-900/50"
+                      }`}
+                    >
+                      {isExtractingPdf ? (
+                        <div className="flex items-center justify-center gap-3">
+                          <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                          <span className="text-indigo-400 text-sm font-medium">Extracting text from PDF…</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 text-zinc-400">
+                          <Upload className="w-6 h-6" />
+                          <p className="font-medium text-sm">Drag & drop PDF or click to browse</p>
+                          <p className="text-xs text-zinc-600">Supports .pdf files up to 10MB</p>
+                        </div>
+                      )}
+                      <input
+                        id="pdf-upload"
+                        type="file"
+                        accept="application/pdf"
+                        className="hidden"
+                        ref={fileInputRef}
+                        disabled={isExtractingPdf}
+                        onChange={(e) => { if (e.target.files?.[0]) handlePdfUpload(e.target.files[0]); }}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4 text-sm text-zinc-600">
+                  <div className="h-px bg-zinc-800 flex-1" /><span>OR</span><div className="h-px bg-zinc-800 flex-1" />
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-zinc-400 mb-2">Paste Project Description / Report</label>
                   <textarea value={pdfText} onChange={(e) => setPdfText(e.target.value)} rows={5}
