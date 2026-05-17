@@ -47,6 +47,9 @@ export default function MinimalTemplate({ portfolio }: { portfolio: Portfolio })
         <header className="mb-16 pb-16 border-b border-zinc-100">
           <div className="flex items-center gap-3 mb-6 text-xs font-mono text-zinc-400">
             <span className="px-2 py-1 bg-zinc-100 text-zinc-500 rounded font-semibold">CASE STUDY</span>
+            {portfolio.category && (
+              <><span>/</span><span className="px-2 py-1 bg-zinc-100 text-zinc-500 rounded">{portfolio.category}</span></>
+            )}
             <span>/</span>
             <span>{new Date(portfolio.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</span>
           </div>
@@ -61,14 +64,14 @@ export default function MinimalTemplate({ portfolio }: { portfolio: Portfolio })
             <div>
               <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1">TL;DR</span>
               <p className="text-zinc-700 text-sm leading-relaxed">
-                {portfolio.problem?.split('.')[0]}. Built using <span className="font-semibold">{portfolio.tech_stack?.slice(0, 3).join(', ')}</span>. Result: <span className="font-semibold text-green-700">{portfolio.win?.split('.')[0]}.</span>
+                {portfolio.problem?.split('.')[0]}. Built using <span className="font-semibold">{(portfolio.toolsUsed || portfolio.tech_stack)?.slice(0, 3).join(', ')}</span>. Result: <span className="font-semibold text-green-700">{portfolio.win?.split('.')[0]}.</span>
               </p>
             </div>
           </div>
 
           {/* Tech Stack */}
           <div className="flex flex-wrap gap-2">
-            {portfolio.tech_stack?.map((tech, i) => (
+            {(portfolio.toolsUsed || portfolio.tech_stack)?.map((tech, i) => (
               <span key={i} className="px-3 py-1.5 bg-zinc-100 border border-zinc-200 rounded-md text-xs font-mono text-zinc-600 hover:bg-zinc-200 transition-colors">
                 {tech}
               </span>
@@ -76,18 +79,29 @@ export default function MinimalTemplate({ portfolio }: { portfolio: Portfolio })
           </div>
         </header>
 
-        {/* Impact Callout */}
-        <div className="mb-16 p-8 rounded-2xl bg-zinc-900 text-white relative overflow-hidden">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-              <Zap className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Measurable Impact</div>
-              <p className="text-2xl md:text-3xl font-bold text-white leading-snug">{portfolio.win}</p>
+        {/* Key Metrics or Impact */}
+        {portfolio.keyMetrics && portfolio.keyMetrics.length > 0 ? (
+          <div className="mb-16 grid grid-cols-2 md:grid-cols-4 gap-4">
+            {portfolio.keyMetrics.map((metric, i) => (
+              <div key={i} className="p-5 rounded-xl bg-zinc-900 text-white text-center">
+                <div className="text-2xl md:text-3xl font-bold mb-1">{metric.value}</div>
+                <div className="text-xs text-zinc-400 uppercase tracking-wider">{metric.label}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mb-16 p-8 rounded-2xl bg-zinc-900 text-white relative overflow-hidden">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Measurable Impact</div>
+                <p className="text-2xl md:text-3xl font-bold text-white leading-snug">{portfolio.win}</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Main grid */}
         <div className="grid lg:grid-cols-5 gap-12">
@@ -133,10 +147,10 @@ export default function MinimalTemplate({ portfolio }: { portfolio: Portfolio })
             <div className="p-6 bg-zinc-50 border border-zinc-200 rounded-2xl">
               <div className="flex items-center gap-2 mb-5">
                 <BookOpen className="w-4 h-4 text-zinc-500" />
-                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Tech Stack</h3>
+                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Tools & Skills</h3>
               </div>
               <div className="space-y-2">
-                {portfolio.tech_stack?.map((tech, i) => (
+                {(portfolio.toolsUsed || portfolio.tech_stack)?.map((tech, i) => (
                   <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-zinc-200">
                     <div className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
                     <span className="text-sm font-mono text-zinc-700">{tech}</span>

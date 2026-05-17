@@ -347,10 +347,10 @@ export default function Onboarding() {
                   </div>
                   <div className="glass-card rounded-xl overflow-hidden">
                     <div className="bg-zinc-900/50 px-5 py-2.5 border-b border-zinc-800">
-                      <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Tech Stack</span>
+                      <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Tools & Skills</span>
                     </div>
                     <div className="p-5 flex flex-wrap gap-2">
-                      {editedData.techStack?.map((tech: string, i: number) => (
+                      {(editedData.toolsUsed || editedData.techStack)?.map((tech: string, i: number) => (
                         <span key={i} className="px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-xs">{tech}</span>
                       ))}
                     </div>

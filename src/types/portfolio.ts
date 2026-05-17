@@ -6,9 +6,12 @@ export type Portfolio = {
   problem: string;
   solution: string;
   tech_stack: string[];
+  toolsUsed?: string[];
   win: string;
   learning: string;
   template: "bold" | "minimal" | "creative";
   repo_url?: string;
   created_at: string;
+  category?: string;
+  keyMetrics?: { label: string; value: string }[];
 };

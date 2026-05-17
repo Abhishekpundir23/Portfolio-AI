@@ -52,6 +52,9 @@ export default function CreativeTemplate({ portfolio }: { portfolio: Portfolio }
         <header className="mb-16">
           <div className="flex items-center gap-3 mb-6 text-xs font-mono" style={{ color: "rgba(255,255,255,0.4)" }}>
             <span className="px-2 py-1 rounded font-semibold" style={{ background: "rgba(139,92,246,0.2)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.3)" }}>CASE STUDY</span>
+            {portfolio.category && (
+              <><span>/</span><span className="px-2 py-1 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}>{portfolio.category}</span></>
+            )}
             <span>/</span>
             <span>{new Date(portfolio.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</span>
           </div>
@@ -67,14 +70,14 @@ export default function CreativeTemplate({ portfolio }: { portfolio: Portfolio }
             <div>
               <span className="text-xs font-bold uppercase tracking-wider block mb-1" style={{ color: "#a78bfa" }}>TL;DR</span>
               <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
-                {portfolio.problem?.split('.')[0]}. Built using <span style={{ color: "#c4b5fd", fontWeight: 600 }}>{portfolio.tech_stack?.slice(0, 3).join(', ')}</span>. Result: <span style={{ color: "#86efac", fontWeight: 600 }}>{portfolio.win?.split('.')[0]}.</span>
+                {portfolio.problem?.split('.')[0]}. Built using <span style={{ color: "#c4b5fd", fontWeight: 600 }}>{(portfolio.toolsUsed || portfolio.tech_stack)?.slice(0, 3).join(', ')}</span>. Result: <span style={{ color: "#86efac", fontWeight: 600 }}>{portfolio.win?.split('.')[0]}.</span>
               </p>
             </div>
           </div>
 
           {/* Tech Stack */}
           <div className="flex flex-wrap gap-2">
-            {portfolio.tech_stack?.map((tech, i) => (
+            {(portfolio.toolsUsed || portfolio.tech_stack)?.map((tech, i) => (
               <span key={i} className="px-3 py-1.5 rounded-md text-xs font-mono"
                 style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}>
                 {tech}
@@ -83,22 +86,34 @@ export default function CreativeTemplate({ portfolio }: { portfolio: Portfolio }
           </div>
         </header>
 
-        {/* Impact Banner */}
-        <div className="mb-16 p-8 rounded-2xl relative overflow-hidden"
-          style={{ background: "linear-gradient(135deg,rgba(139,92,246,0.25),rgba(236,72,153,0.15))", border: "1px solid rgba(139,92,246,0.3)" }}>
-          <div className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
-            style={{ background: "radial-gradient(circle, rgba(236,72,153,0.15) 0%, transparent 70%)" }} />
-          <div className="flex items-start gap-4 relative z-10">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(139,92,246,0.3)", border: "1px solid rgba(139,92,246,0.4)" }}>
-              <Zap className="w-6 h-6" style={{ color: "#c4b5fd" }} />
-            </div>
-            <div>
-              <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(167,139,250,0.7)" }}>Measurable Impact</div>
-              <p className="text-2xl md:text-3xl font-bold leading-snug text-white">{portfolio.win}</p>
+        {/* Key Metrics or Impact */}
+        {portfolio.keyMetrics && portfolio.keyMetrics.length > 0 ? (
+          <div className="mb-16 grid grid-cols-2 md:grid-cols-4 gap-4">
+            {portfolio.keyMetrics.map((metric, i) => (
+              <div key={i} className="p-5 rounded-xl text-center"
+                style={{ background: "linear-gradient(135deg,rgba(139,92,246,0.15),rgba(236,72,153,0.1))", border: "1px solid rgba(139,92,246,0.2)" }}>
+                <div className="text-2xl md:text-3xl font-bold mb-1" style={{ color: "#c4b5fd" }}>{metric.value}</div>
+                <div className="text-xs uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.4)" }}>{metric.label}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mb-16 p-8 rounded-2xl relative overflow-hidden"
+            style={{ background: "linear-gradient(135deg,rgba(139,92,246,0.25),rgba(236,72,153,0.15))", border: "1px solid rgba(139,92,246,0.3)" }}>
+            <div className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
+              style={{ background: "radial-gradient(circle, rgba(236,72,153,0.15) 0%, transparent 70%)" }} />
+            <div className="flex items-start gap-4 relative z-10">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: "rgba(139,92,246,0.3)", border: "1px solid rgba(139,92,246,0.4)" }}>
+                <Zap className="w-6 h-6" style={{ color: "#c4b5fd" }} />
+              </div>
+              <div>
+                <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(167,139,250,0.7)" }}>Measurable Impact</div>
+                <p className="text-2xl md:text-3xl font-bold leading-snug text-white">{portfolio.win}</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Main grid */}
         <div className="grid lg:grid-cols-5 gap-12">
@@ -150,10 +165,10 @@ export default function CreativeTemplate({ portfolio }: { portfolio: Portfolio }
             <div className="p-6 rounded-2xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <div className="flex items-center gap-2 mb-5">
                 <BookOpen className="w-4 h-4" style={{ color: "#a78bfa" }} />
-                <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.35)" }}>Tech Stack</h3>
+                <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.35)" }}>Tools & Skills</h3>
               </div>
               <div className="space-y-2">
-                {portfolio.tech_stack?.map((tech, i) => (
+                {(portfolio.toolsUsed || portfolio.tech_stack)?.map((tech, i) => (
                   <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg"
                     style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
                     <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#a78bfa" }} />
