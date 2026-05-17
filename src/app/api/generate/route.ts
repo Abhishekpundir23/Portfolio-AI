@@ -38,8 +38,12 @@ export async function POST(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+    
+    // Try models in order — if one hits quota, fall back to the next
+    const modelsToTry = ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-flash"];
+    
+    const getModel = (modelName: string) => genAI.getGenerativeModel({
+      model: modelName,
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: schema,
@@ -51,6 +55,32 @@ export async function POST(req: Request) {
 Analyze the following project data provided by a ${role || "Software Engineer"} and generate a highly professional "Case Study" style portfolio entry.
 Focus on impact, numbers, and the "Show, Don't Tell" methodology. If the data is a PDF report or README, extract the true business value, key features, and tech stack.
 Be specific with numbers and metrics. If exact numbers aren't available, make reasonable professional estimates.`;
+
+    // Helper: try each model until one works
+    const generateWithFallback = async (content: any) => {
+      let lastError: any = null;
+      for (const modelName of modelsToTry) {
+        try {
+          console.log(`Trying model: ${modelName}`);
+          const model = getModel(modelName);
+          const result = await model.generateContent(content);
+          let responseText = result.response.text();
+          responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+          return JSON.parse(responseText);
+        } catch (err: any) {
+          lastError = err;
+          const msg = err?.message || "";
+          // If it's a quota/rate error, try the next model
+          if (msg.includes("429") || msg.includes("quota") || msg.includes("rate") || msg.includes("RESOURCE_EXHAUSTED")) {
+            console.warn(`Model ${modelName} quota exhausted, trying next...`);
+            continue;
+          }
+          // If it's a different error, throw immediately
+          throw err;
+        }
+      }
+      throw lastError || new Error("All Gemini models exhausted. Please try again later.");
+    };
 
     // If a PDF was uploaded, send it as multimodal content to Gemini
     if (pdfBase64) {
@@ -66,10 +96,7 @@ Be specific with numbers and metrics. If exact numbers aren't available, make re
         }
       ];
 
-      const result = await model.generateContent(contentParts);
-      let responseText = result.response.text();
-      responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
-      const data = JSON.parse(responseText);
+      const data = await generateWithFallback(contentParts);
       return NextResponse.json({ success: true, data });
     }
 
@@ -101,13 +128,7 @@ Be specific with numbers and metrics. If exact numbers aren't available, make re
     }
 
     const fullPrompt = prompt + `\n\nProject Data:\n${contextualData}`;
-    const result = await model.generateContent(fullPrompt);
-    let responseText = result.response.text();
-    
-    // Sometimes AI still wraps JSON in markdown blocks despite mimeType settings
-    responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
-    
-    const data = JSON.parse(responseText);
+    const data = await generateWithFallback(fullPrompt);
 
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
