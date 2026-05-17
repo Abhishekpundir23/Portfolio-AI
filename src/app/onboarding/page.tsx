@@ -113,14 +113,24 @@ export default function Onboarding() {
     setStep(5);
   };
 
-  const publish = () => {
+  const publish = async () => {
     // Re-save with the FINAL template choice from step 5
     const existing = localStorage.getItem("portfolio");
     if (existing) {
       const data = JSON.parse(existing);
       localStorage.setItem("portfolio", JSON.stringify({ ...data, template }));
     }
-    router.push("/login");
+    
+    // Check if user is already logged in — skip login if so
+    const { createClient } = await import("@/utils/supabase/client");
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      router.push("/dashboard");
+    } else {
+      router.push("/login");
+    }
   };
 
   const stepLabels = ["Role", "Project", "AI Magic", "Review", "Publish"];
