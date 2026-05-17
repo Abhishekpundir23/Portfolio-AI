@@ -36,101 +36,52 @@ export default function Onboarding() {
   const [isExtractingPdf, setIsExtractingPdf] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handlePdfUpload = async (file: File) => {
+  const handlePdfUpload = (file: File) => {
     if (!file || file.type !== "application/pdf") {
       alert("Please upload a PDF file.");
       return;
     }
-    setPdfFile(file);
-    setIsExtractingPdf(true);
-
-    try {
-      const buffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      // Extract readable text from PDF binary
-      let text = "";
-      let inStream = false;
-      let streamChunks: number[][] = [];
-      let currentChunk: number[] = [];
-
-      for (let i = 0; i < bytes.length; i++) {
-        if (!inStream) {
-          // Look for "stream" keyword
-          if (bytes[i] === 115 && bytes[i+1] === 116 && bytes[i+2] === 114 &&
-              bytes[i+3] === 101 && bytes[i+4] === 97 && bytes[i+5] === 109) {
-            inStream = true;
-            i += 6;
-            // Skip whitespace after "stream"
-            while (i < bytes.length && (bytes[i] === 10 || bytes[i] === 13)) i++;
-            i--;
-          }
-        } else {
-          // Look for "endstream"
-          if (bytes[i] === 101 && bytes[i+1] === 110 && bytes[i+2] === 100 &&
-              bytes[i+3] === 115 && bytes[i+4] === 116 && bytes[i+5] === 114) {
-            inStream = false;
-            streamChunks.push([...currentChunk]);
-            currentChunk = [];
-            i += 8;
-          } else {
-            currentChunk.push(bytes[i]);
-          }
-        }
-      }
-
-      // Decode text from the full file as fallback
-      const fullText = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
-      // Extract text between parentheses (PDF text objects) and BT/ET blocks
-      const parenMatches = fullText.match(/\(([^)]+)\)/g) || [];
-      const extractedParts = parenMatches
-        .map(m => m.slice(1, -1))
-        .filter(s => s.length > 1 && /[a-zA-Z]/.test(s) && !/^[\\\/]/.test(s))
-        .map(s => s.replace(/\\n/g, "\n").replace(/\\r/g, "").replace(/\\\(/g, "(").replace(/\\\)/g, ")"));
-
-      text = extractedParts.join(" ").replace(/\s+/g, " ").trim();
-
-      if (text.length < 50) {
-        // Fallback: grab all printable ASCII sequences
-        const printable = fullText.match(/[\x20-\x7E]{4,}/g) || [];
-        const filtered = printable.filter(s =>
-          /[a-zA-Z]{2,}/.test(s) &&
-          !s.startsWith("/") &&
-          !s.startsWith("<<") &&
-          !s.includes("obj") &&
-          !s.includes("endobj") &&
-          !s.includes("xref") &&
-          !s.includes("stream")
-        );
-        text = filtered.join(" ").replace(/\s+/g, " ").trim();
-      }
-
-      if (text.length > 20) {
-        setPdfText(text.slice(0, 8000));
-      } else {
-        alert("Could not extract enough text from this PDF. Try pasting the content manually in the text box below.");
-        setPdfFile(null);
-      }
-    } catch (err) {
-      console.error("PDF extraction error:", err);
-      alert("Error reading PDF. Try pasting the content manually.");
-      setPdfFile(null);
-    } finally {
-      setIsExtractingPdf(false);
+    if (file.size > 10 * 1024 * 1024) {
+      alert("PDF must be under 10MB.");
+      return;
     }
+    setPdfFile(file);
+  };
+
+  // Convert a File to base64 string
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Remove the data:application/pdf;base64, prefix
+        resolve(result.split(",")[1]);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleGenerate = async () => {
     setIsGenerating(true);
     setStep(3);
     try {
+      const body: any = {
+        role,
+        repoUrl: githubUrl,
+        inputData: pdfText || (githubUrl ? `GitHub repo: ${githubUrl}` : ""),
+      };
+
+      // If a PDF file was uploaded, convert to base64 and send to Gemini
+      if (pdfFile) {
+        body.pdfBase64 = await fileToBase64(pdfFile);
+        body.pdfName = pdfFile.name;
+      }
+
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          role,
-          repoUrl: githubUrl,
-          inputData: pdfText || (githubUrl ? `GitHub repo: ${githubUrl}` : ""),
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (data.success) {
@@ -262,7 +213,7 @@ export default function Onboarding() {
                         <FileText className="w-5 h-5 text-indigo-400" />
                         <div>
                           <p className="text-sm font-medium text-white truncate max-w-[250px]">{pdfFile.name}</p>
-                          <p className="text-xs text-indigo-400">Text extracted successfully</p>
+                          <p className="text-xs text-indigo-400">Ready for AI analysis ✓</p>
                         </div>
                       </div>
                       <button
@@ -320,7 +271,7 @@ export default function Onboarding() {
               </div>
               <div className="flex justify-between pt-6 border-t border-zinc-900">
                 <button onClick={() => setStep(1)} className="px-6 py-3 text-zinc-400 hover:text-white transition-colors">Back</button>
-                <button onClick={handleGenerate} disabled={!githubUrl && !pdfText}
+                <button onClick={handleGenerate} disabled={!githubUrl && !pdfText && !pdfFile}
                   className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-full disabled:opacity-40 flex items-center gap-2 hover:bg-indigo-500 transition-colors animate-glow">
                   Generate Case Study <Sparkles className="w-4 h-4" />
                 </button>

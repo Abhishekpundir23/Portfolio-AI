@@ -16,9 +16,9 @@ const schema: Schema = {
 
 export async function POST(req: Request) {
   try {
-    const { repoUrl, inputData, role } = await req.json();
+    const { repoUrl, inputData, role, pdfBase64, pdfName } = await req.json();
 
-    // Check for Gemini API key first, then fallback to OpenAI key for backwards compatibility
+    // Check for Gemini API key first
     const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-flash-latest",
+      model: "gemini-2.0-flash",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: schema,
@@ -47,6 +47,33 @@ export async function POST(req: Request) {
       }
     });
 
+    const prompt = `You are an expert tech recruiter and portfolio copywriter.
+Analyze the following project data provided by a ${role || "Software Engineer"} and generate a highly professional "Case Study" style portfolio entry.
+Focus on impact, numbers, and the "Show, Don't Tell" methodology. If the data is a PDF report or README, extract the true business value, key features, and tech stack.
+Be specific with numbers and metrics. If exact numbers aren't available, make reasonable professional estimates.`;
+
+    // If a PDF was uploaded, send it as multimodal content to Gemini
+    if (pdfBase64) {
+      const contentParts = [
+        {
+          inlineData: {
+            mimeType: "application/pdf",
+            data: pdfBase64,
+          }
+        },
+        {
+          text: prompt + `\n\nThe PDF file "${pdfName || "uploaded.pdf"}" has been provided above. Analyze it thoroughly and generate the case study.`
+        }
+      ];
+
+      const result = await model.generateContent(contentParts);
+      let responseText = result.response.text();
+      responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+      const data = JSON.parse(responseText);
+      return NextResponse.json({ success: true, data });
+    }
+
+    // Otherwise, use text-based input (GitHub URL or pasted text)
     let contextualData = inputData || repoUrl || "Built a project using Next.js and Supabase.";
     
     // Fetch GitHub README if a GitHub URL is provided
@@ -65,7 +92,7 @@ export async function POST(req: Request) {
           
           if (readmeResponse.ok) {
             const readmeText = await readmeResponse.text();
-            contextualData = `GitHub Repository: ${repoUrl}\n\nREADME Content:\n${readmeText.substring(0, 15000)}`; // limit to 15k chars to avoid token limits
+            contextualData = `GitHub Repository: ${repoUrl}\n\nREADME Content:\n${readmeText.substring(0, 15000)}`;
           }
         }
       } catch (e) {
@@ -73,14 +100,8 @@ export async function POST(req: Request) {
       }
     }
 
-    const prompt = `You are an expert tech recruiter and portfolio copywriter.
-Analyze the following project data provided by a ${role || "Software Engineer"} and generate a highly professional "Case Study" style portfolio entry.
-Focus on impact, numbers, and the "Show, Don't Tell" methodology. If the data is a README, extract the true business value and tech stack.
-
-Project Data:
-${contextualData}`;
-
-    const result = await model.generateContent(prompt);
+    const fullPrompt = prompt + `\n\nProject Data:\n${contextualData}`;
+    const result = await model.generateContent(fullPrompt);
     let responseText = result.response.text();
     
     // Sometimes AI still wraps JSON in markdown blocks despite mimeType settings
