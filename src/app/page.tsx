@@ -94,9 +94,9 @@ export default function Home() {
         style={{ backgroundImage: "linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
 
       {/* Animated Ambient blobs */}
-      <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="fixed top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-600/20 blur-[140px] pointer-events-none z-0" />
-      <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="fixed top-[40%] right-[-15%] w-[500px] h-[500px] rounded-full bg-fuchsia-600/10 blur-[140px] pointer-events-none z-0" />
-      <motion.div animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.3, 0.2] }} transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 2 }} className="fixed bottom-0 left-[20%] w-[400px] h-[400px] rounded-full bg-blue-600/10 blur-[120px] pointer-events-none z-0" />
+      <motion.div animate={{ scale: [1, 1.3, 1], x: [0, 50, 0], y: [0, -50, 0], opacity: [0.4, 0.7, 0.4] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} className="fixed top-[-20%] left-[-10%] w-[700px] h-[700px] rounded-full bg-indigo-600/30 blur-[120px] pointer-events-none z-0" />
+      <motion.div animate={{ scale: [1, 1.4, 1], x: [0, -60, 0], y: [0, 60, 0], opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="fixed top-[30%] right-[-10%] w-[600px] h-[600px] rounded-full bg-fuchsia-600/20 blur-[120px] pointer-events-none z-0" />
+      <motion.div animate={{ scale: [1, 1.2, 1], x: [0, 40, 0], y: [0, 40, 0], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }} className="fixed bottom-[-10%] left-[20%] w-[500px] h-[500px] rounded-full bg-blue-600/20 blur-[100px] pointer-events-none z-0" />
 
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-900/60 bg-[#080808]/80 backdrop-blur-xl">
@@ -205,10 +205,11 @@ export default function Home() {
         {/* Floating cards */}
         {FLOAT_CARDS.map((c, i) => (
           <motion.div key={i} drag dragConstraints={heroRef} whileHover={{ scale: 1.05, cursor: "grab" }} whileDrag={{ scale: 1.1, cursor: "grabbing" }}
+            animate={{ y: [0, -15, 0] }} transition={{ duration: 6 + i, repeat: Infinity, ease: "easeInOut", delay: c.delay }}
             className={`absolute hidden xl:block glass-card rounded-xl p-4 text-left w-56 border ${c.color} shadow-2xl backdrop-blur-xl`}
-            style={{ top: c.top, left: c.left, right: c.right, rotate: c.rotate, animation: `float ${7 + i}s ease-in-out ${c.delay}s infinite` }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-1 opacity-70">{c.label}</div>
-            <div className="text-sm font-medium leading-snug">{c.value}</div>
+            style={{ top: c.top, left: c.left, right: c.right, rotate: c.rotate }}>
+            <div className="text-xs font-bold uppercase tracking-widest mb-1 opacity-70 pointer-events-none">{c.label}</div>
+            <div className="text-sm font-medium leading-snug pointer-events-none">{c.value}</div>
           </motion.div>
         ))}
       </section>
