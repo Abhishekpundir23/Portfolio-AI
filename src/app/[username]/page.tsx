@@ -11,12 +11,36 @@ export async function generateMetadata(props: { params: Promise<{ username: stri
   const supabase = await createClient();
   const { data: portfolio } = await supabase
     .from("portfolios")
-    .select("hook, username")
+    .select("hook, username, problem, win, tech_stack")
     .eq("username", params.username)
     .single();
+
+  if (!portfolio) {
+    return { title: "Portfolio Not Found" };
+  }
+
+  const title = `${portfolio.hook} | Portfolio.ai`;
+  const description = `${portfolio.problem?.split('.')[0]}. Result: ${portfolio.win?.split('.')[0]}.`;
+  const tools = portfolio.tech_stack?.slice(0, 4).join(", ") || "";
+  const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://portfolio-ai-ten-silk.vercel.app"}/api/og?title=${encodeURIComponent(portfolio.hook)}&username=${encodeURIComponent(portfolio.username)}&tools=${encodeURIComponent(tools)}`;
+
   return {
-    title: portfolio ? `${portfolio.hook} | Portfolio.ai` : "Portfolio",
-    description: portfolio?.hook,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      url: `/${portfolio.username}`,
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: portfolio.hook }],
+      siteName: "Portfolio.ai",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
+    },
   };
 }
 
