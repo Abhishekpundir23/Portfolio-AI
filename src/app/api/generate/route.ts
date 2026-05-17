@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     const genAI = new GoogleGenerativeAI(apiKey);
     
     // Try models in order — if one hits quota, fall back to the next
-    const modelsToTry = ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-flash"];
+    const modelsToTry = ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-2.5-flash-preview-05-20"];
     
     const getModel = (modelName: string) => genAI.getGenerativeModel({
       model: modelName,
@@ -71,7 +71,7 @@ Be specific with numbers and metrics. If exact numbers aren't available, make re
           lastError = err;
           const msg = err?.message || "";
           // If it's a quota/rate error, try the next model
-          if (msg.includes("429") || msg.includes("quota") || msg.includes("rate") || msg.includes("RESOURCE_EXHAUSTED")) {
+          if (msg.includes("429") || msg.includes("quota") || msg.includes("rate") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("404") || msg.includes("not found") || msg.includes("NOT_FOUND")) {
             console.warn(`Model ${modelName} quota exhausted, trying next...`);
             continue;
           }
