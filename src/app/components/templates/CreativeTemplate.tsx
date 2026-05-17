@@ -1,6 +1,7 @@
 "use client";
 import type { Portfolio } from "@/types/portfolio";
-import { GitBranch, ArrowUpRight, Download, Terminal, Zap, BookOpen, Lightbulb, Eye } from "lucide-react";
+import { ExternalLink, ArrowUpRight, Download, Target, Zap, BookOpen, Lightbulb, Eye } from "lucide-react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -33,7 +34,7 @@ export default function CreativeTemplate({ portfolio }: { portfolio: Portfolio }
           {portfolio.repo_url && (
             <a href={portfolio.repo_url} target="_blank" rel="noreferrer"
               className="px-4 py-2 border border-white/10 rounded-lg flex items-center gap-2 text-sm text-white/60 hover:text-white hover:border-white/30 transition-all">
-              <GitBranch className="w-4 h-4" /> Source Code
+              <ExternalLink className="w-4 h-4" /> Project Link
             </a>
           )}
           <a href={whatsappUrl} target="_blank" rel="noreferrer"
@@ -49,7 +50,10 @@ export default function CreativeTemplate({ portfolio }: { portfolio: Portfolio }
         </div>
       </nav>
 
-      <article className="max-w-5xl mx-auto px-6 py-20 relative z-10">
+      <motion.article 
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+        className="max-w-5xl mx-auto px-6 py-20 relative z-10"
+      >
         {/* Header */}
         <header className="mb-16">
           <div className="flex items-center gap-3 mb-6 text-xs font-mono" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -67,15 +71,15 @@ export default function CreativeTemplate({ portfolio }: { portfolio: Portfolio }
           </h1>
 
           {/* TL;DR */}
-          <div className="p-5 rounded-xl flex gap-4 mb-8" style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.2)" }}>
-            <Terminal className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "#a78bfa" }} />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="p-5 rounded-xl flex gap-4 mb-8" style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.2)" }}>
+            <Target className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "#a78bfa" }} />
             <div>
               <span className="text-xs font-bold uppercase tracking-wider block mb-1" style={{ color: "#a78bfa" }}>TL;DR</span>
               <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
-                {portfolio.problem?.split('.')[0]}. Built using <span style={{ color: "#c4b5fd", fontWeight: 600 }}>{(portfolio.toolsUsed || portfolio.tech_stack)?.slice(0, 3).join(', ')}</span>. Result: <span style={{ color: "#86efac", fontWeight: 600 }}>{portfolio.win?.split('.')[0]}.</span>
+                {portfolio.problem?.split('.')[0]}. Leveraged <span style={{ color: "#c4b5fd", fontWeight: 600 }}>{(portfolio.toolsUsed || portfolio.tech_stack)?.slice(0, 3).join(', ')}</span> to drive results. Result: <span style={{ color: "#86efac", fontWeight: 600 }}>{portfolio.win?.split('.')[0]}.</span>
               </p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Tech Stack */}
           <div className="flex flex-wrap gap-2">
@@ -90,15 +94,15 @@ export default function CreativeTemplate({ portfolio }: { portfolio: Portfolio }
 
         {/* Key Metrics or Impact */}
         {portfolio.keyMetrics && portfolio.keyMetrics.length > 0 ? (
-          <div className="mb-16 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mb-16 grid grid-cols-2 md:grid-cols-4 gap-4">
             {portfolio.keyMetrics.map((metric, i) => (
-              <div key={i} className="p-5 rounded-xl text-center"
+              <div key={i} className="p-5 rounded-xl text-center group hover:-translate-y-1 transition-transform"
                 style={{ background: "linear-gradient(135deg,rgba(139,92,246,0.15),rgba(236,72,153,0.1))", border: "1px solid rgba(139,92,246,0.2)" }}>
-                <div className="text-2xl md:text-3xl font-bold mb-1" style={{ color: "#c4b5fd" }}>{metric.value}</div>
+                <div className="text-2xl md:text-3xl font-bold mb-1 group-hover:scale-105 transition-transform" style={{ color: "#c4b5fd" }}>{metric.value}</div>
                 <div className="text-xs uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.4)" }}>{metric.label}</div>
               </div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="mb-16 p-8 rounded-2xl relative overflow-hidden"
             style={{ background: "linear-gradient(135deg,rgba(139,92,246,0.25),rgba(236,72,153,0.15))", border: "1px solid rgba(139,92,246,0.3)" }}>
@@ -118,7 +122,7 @@ export default function CreativeTemplate({ portfolio }: { portfolio: Portfolio }
         )}
 
         {/* Main grid */}
-        <div className="grid lg:grid-cols-5 gap-12">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="grid lg:grid-cols-5 gap-12">
           <div className="lg:col-span-3 space-y-14">
             {/* Problem */}
             <section>
@@ -187,10 +191,10 @@ export default function CreativeTemplate({ portfolio }: { portfolio: Portfolio }
               </div>
               {portfolio.repo_url && (
                 <div>
-                  <div className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.3)" }}>Repository</div>
+                  <div className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.3)" }}>Project Link</div>
                   <a href={portfolio.repo_url} target="_blank" rel="noreferrer"
                     className="text-sm flex items-center gap-1 break-all" style={{ color: "#a78bfa" }}>
-                    {portfolio.repo_url.replace('https://github.com/', '')} <ArrowUpRight className="w-3 h-3 flex-shrink-0" />
+                    {portfolio.repo_url.replace('https://github.com/', '').replace('https://', '')} <ArrowUpRight className="w-3 h-3 flex-shrink-0" />
                   </a>
                 </div>
               )}
@@ -221,8 +225,8 @@ export default function CreativeTemplate({ portfolio }: { portfolio: Portfolio }
               </button>
             </div>
           </aside>
-        </div>
-      </article>
+        </motion.div>
+      </motion.article>
 
       <footer className="px-8 py-6 mt-12 flex justify-between items-center no-print"
         style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>

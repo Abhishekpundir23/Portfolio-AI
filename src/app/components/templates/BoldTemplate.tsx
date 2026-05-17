@@ -1,7 +1,8 @@
 "use client";
 import type { Portfolio } from "@/types/portfolio";
 import { useEffect, useState } from "react";
-import { GitBranch, Download, ArrowUpRight, Terminal, Zap, BookOpen, Lightbulb, Clock, Eye } from "lucide-react";
+import { ExternalLink, Download, ArrowUpRight, Target, Zap, BookOpen, Lightbulb, Clock, Eye } from "lucide-react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function BoldTemplate({ portfolio }: { portfolio: Portfolio }) {
@@ -34,7 +35,7 @@ export default function BoldTemplate({ portfolio }: { portfolio: Portfolio }) {
           {portfolio.repo_url && (
             <a href={portfolio.repo_url} target="_blank" rel="noreferrer"
               className="px-4 py-2 border border-zinc-800 rounded-lg flex items-center gap-2 text-sm text-zinc-400 hover:text-white hover:border-zinc-600 transition-all">
-              <GitBranch className="w-4 h-4" /> Source Code
+              <ExternalLink className="w-4 h-4" /> Project Link
             </a>
           )}
           <a href={whatsappUrl} target="_blank" rel="noreferrer"
@@ -50,7 +51,10 @@ export default function BoldTemplate({ portfolio }: { portfolio: Portfolio }) {
         </div>
       </nav>
 
-      <article className="max-w-5xl mx-auto px-6 py-16">
+      <motion.article 
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+        className="max-w-5xl mx-auto px-6 py-16"
+      >
         {/* Header */}
         <header className="mb-16">
           <div className="flex items-center gap-3 mb-6 text-xs font-mono text-zinc-500">
@@ -67,15 +71,15 @@ export default function BoldTemplate({ portfolio }: { portfolio: Portfolio }) {
           </h1>
 
           {/* TL;DR box */}
-          <div className="p-5 bg-zinc-900/70 border border-zinc-700/50 rounded-xl flex gap-4 mb-8">
-            <Terminal className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="p-5 bg-zinc-900/70 border border-zinc-700/50 rounded-xl flex gap-4 mb-8 hover:border-indigo-500/30 transition-all">
+            <Target className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
             <div>
               <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider block mb-1">TL;DR</span>
               <p className="text-zinc-300 text-sm leading-relaxed">
-                {portfolio.problem?.split('.')[0]}. Built a solution using <span className="text-indigo-300">{(portfolio.toolsUsed || portfolio.tech_stack)?.slice(0, 3).join(', ')}</span>. Result: <span className="text-green-400 font-semibold">{portfolio.win?.split('.')[0]}.</span>
+                {portfolio.problem?.split('.')[0]}. Leveraged <span className="text-indigo-300">{(portfolio.toolsUsed || portfolio.tech_stack)?.slice(0, 3).join(', ')}</span> to drive results. Result: <span className="text-green-400 font-semibold">{portfolio.win?.split('.')[0]}.</span>
               </p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Tech stack tags */}
           <div className="flex flex-wrap gap-2">
@@ -89,14 +93,14 @@ export default function BoldTemplate({ portfolio }: { portfolio: Portfolio }) {
 
         {/* Key Metrics Grid */}
         {portfolio.keyMetrics && portfolio.keyMetrics.length > 0 ? (
-          <div className="mb-16 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mb-16 grid grid-cols-2 md:grid-cols-4 gap-4">
             {portfolio.keyMetrics.map((metric, i) => (
-              <div key={i} className="p-5 rounded-xl bg-zinc-900/70 border border-zinc-800 text-center">
-                <div className="text-2xl md:text-3xl font-bold text-indigo-300 mb-1">{metric.value}</div>
+              <div key={i} className="p-5 rounded-xl bg-zinc-900/70 border border-zinc-800 text-center hover:border-indigo-500/50 hover:bg-zinc-900 transition-all group">
+                <div className="text-2xl md:text-3xl font-bold text-indigo-300 mb-1 group-hover:scale-105 transition-transform">{metric.value}</div>
                 <div className="text-xs text-zinc-500 uppercase tracking-wider">{metric.label}</div>
               </div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="mb-16 p-8 rounded-2xl bg-gradient-to-br from-green-950/60 to-emerald-950/30 border border-green-800/30 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/5 rounded-full blur-3xl" />
@@ -113,7 +117,7 @@ export default function BoldTemplate({ portfolio }: { portfolio: Portfolio }) {
         )}
 
         {/* Main content - two column */}
-        <div className="grid lg:grid-cols-5 gap-12">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="grid lg:grid-cols-5 gap-12">
           {/* Left - main narrative */}
           <div className="lg:col-span-3 space-y-14">
 
@@ -182,10 +186,10 @@ export default function BoldTemplate({ portfolio }: { portfolio: Portfolio }) {
               </div>
               {portfolio.repo_url && (
                 <div>
-                  <div className="text-xs text-zinc-600 mb-1">Repository</div>
+                  <div className="text-xs text-zinc-600 mb-1">Project Link</div>
                   <a href={portfolio.repo_url} target="_blank" rel="noreferrer"
                     className="text-sm text-indigo-400 hover:text-indigo-300 flex items-center gap-1 break-all">
-                    {portfolio.repo_url.replace('https://github.com/', '')} <ArrowUpRight className="w-3 h-3 flex-shrink-0" />
+                    {portfolio.repo_url.replace('https://github.com/', '').replace('https://', '')} <ArrowUpRight className="w-3 h-3 flex-shrink-0" />
                   </a>
                 </div>
               )}
@@ -213,8 +217,8 @@ export default function BoldTemplate({ portfolio }: { portfolio: Portfolio }) {
               </button>
             </div>
           </aside>
-        </div>
-      </article>
+        </motion.div>
+      </motion.article>
 
       {/* Footer */}
       <footer className="border-t border-zinc-900 px-8 py-6 mt-12 flex justify-between items-center no-print">
