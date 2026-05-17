@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, LogOut, Plus, ExternalLinkIcon, CheckCircle2, XCircle, Loader2, Pencil, Trash2, X, Save } from "lucide-react";
+import { ArrowUpRight, LogOut, Plus, ExternalLinkIcon, CheckCircle2, XCircle, Loader2, Pencil, Trash2, X, Save, Eye } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
@@ -18,6 +18,7 @@ type Portfolio = {
   learning: string;
   template: string;
   created_at: string;
+  views?: number;
 };
 
 export default function Dashboard() {
@@ -343,7 +344,12 @@ export default function Dashboard() {
                   ))}
                 </div>
                 <div className="flex justify-between items-center pt-4 border-t border-zinc-900">
-                  <span className="text-xs text-zinc-600">{new Date(p.created_at).toLocaleDateString()}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-zinc-600">{new Date(p.created_at).toLocaleDateString()}</span>
+                    <span className="text-xs text-zinc-500 flex items-center gap-1" title="Profile Views">
+                      <Eye className="w-3 h-3" /> {p.views || 0}
+                    </span>
+                  </div>
                   <div className="flex items-center gap-3">
                     <button onClick={() => handleEdit(p)}
                       className="text-xs text-zinc-500 hover:text-indigo-400 transition-colors flex items-center gap-1">

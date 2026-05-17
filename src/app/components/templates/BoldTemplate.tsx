@@ -1,7 +1,7 @@
 "use client";
 import type { Portfolio } from "@/types/portfolio";
 import { useEffect, useState } from "react";
-import { GitBranch, Download, ArrowUpRight, Terminal, Zap, BookOpen, Lightbulb, Clock } from "lucide-react";
+import { GitBranch, Download, ArrowUpRight, Terminal, Zap, BookOpen, Lightbulb, Clock, Eye } from "lucide-react";
 import Link from "next/link";
 
 export default function BoldTemplate({ portfolio }: { portfolio: Portfolio }) {
@@ -189,9 +189,17 @@ export default function BoldTemplate({ portfolio }: { portfolio: Portfolio }) {
                   </a>
                 </div>
               )}
-              <div>
-                <div className="text-xs text-zinc-600 mb-1">Published</div>
-                <div className="text-sm text-zinc-300">{new Date(portfolio.created_at).toLocaleDateString('en-US', { dateStyle: 'long' })}</div>
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="text-xs text-zinc-600 mb-1">Published</div>
+                  <div className="text-sm text-zinc-300">{new Date(portfolio.created_at).toLocaleDateString('en-US', { dateStyle: 'long' })}</div>
+                </div>
+                {portfolio.views !== undefined && (
+                  <div className="text-right">
+                    <div className="text-xs text-zinc-600 mb-1">Views</div>
+                    <div className="text-sm text-zinc-300 flex items-center gap-1 justify-end"><Eye className="w-3.5 h-3.5" /> {portfolio.views}</div>
+                  </div>
+                )}
               </div>
             </div>
 

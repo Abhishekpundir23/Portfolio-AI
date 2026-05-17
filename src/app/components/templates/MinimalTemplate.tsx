@@ -1,6 +1,6 @@
 "use client";
 import type { Portfolio } from "@/types/portfolio";
-import { GitBranch, ArrowUpRight, Download, Terminal, Zap, BookOpen, Lightbulb } from "lucide-react";
+import { GitBranch, ArrowUpRight, Download, Terminal, Zap, BookOpen, Lightbulb, Eye } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -176,9 +176,17 @@ export default function MinimalTemplate({ portfolio }: { portfolio: Portfolio })
                   </a>
                 </div>
               )}
-              <div>
-                <div className="text-xs text-zinc-400 mb-1">Published</div>
-                <div className="text-sm text-zinc-700 font-medium">{new Date(portfolio.created_at).toLocaleDateString('en-US', { dateStyle: 'long' })}</div>
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="text-xs text-zinc-400 mb-1">Published</div>
+                  <div className="text-sm text-zinc-700 font-medium">{new Date(portfolio.created_at).toLocaleDateString('en-US', { dateStyle: 'long' })}</div>
+                </div>
+                {portfolio.views !== undefined && (
+                  <div className="text-right">
+                    <div className="text-xs text-zinc-400 mb-1">Views</div>
+                    <div className="text-sm text-zinc-700 font-medium flex items-center gap-1 justify-end"><Eye className="w-3.5 h-3.5" /> {portfolio.views}</div>
+                  </div>
+                )}
               </div>
             </div>
 

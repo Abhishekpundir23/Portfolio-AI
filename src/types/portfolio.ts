@@ -14,4 +14,5 @@ export type Portfolio = {
   created_at: string;
   category?: string;
   keyMetrics?: { label: string; value: string }[];
+  views?: number;
 };

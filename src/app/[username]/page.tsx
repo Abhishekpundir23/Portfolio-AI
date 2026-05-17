@@ -56,6 +56,9 @@ export default async function PublicPortfolio(props: { params: Promise<{ usernam
 
   if (error || !portfolio) notFound();
 
+  // Increment view counter in the background
+  supabase.rpc('increment_portfolio_views', { portfolio_id: portfolio.id }).then();
+
   const template = portfolio.template || "bold";
 
   if (template === "minimal") return <MinimalTemplate portfolio={portfolio as Portfolio} />;
