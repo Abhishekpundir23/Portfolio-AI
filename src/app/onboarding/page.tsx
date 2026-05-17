@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, CheckCircle2, GitBranch, FileText, Code, Palette, Database, Download, Upload, X } from "lucide-react";
+import { ArrowRight, Sparkles, CheckCircle2, GitBranch, FileText, Code, Palette, Database, Download, Upload, X, BarChart3, Megaphone, PenTool, Briefcase, GraduationCap, Cpu, Stethoscope, Building2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -13,7 +13,15 @@ const roles = [
   { id: "frontend", name: "Frontend Dev", icon: <Palette className="w-6 h-6" /> },
   { id: "backend", name: "Backend Dev", icon: <Database className="w-6 h-6" /> },
   { id: "fullstack", name: "Full Stack Dev", icon: <Code className="w-6 h-6" /> },
-  { id: "data", name: "Data Analyst / ML", icon: <FileText className="w-6 h-6" /> },
+  { id: "data", name: "Data / ML Engineer", icon: <BarChart3 className="w-6 h-6" /> },
+  { id: "designer", name: "UI/UX Designer", icon: <PenTool className="w-6 h-6" /> },
+  { id: "marketing", name: "Marketing / Growth", icon: <Megaphone className="w-6 h-6" /> },
+  { id: "product", name: "Product Manager", icon: <Briefcase className="w-6 h-6" /> },
+  { id: "content", name: "Content / Writer", icon: <FileText className="w-6 h-6" /> },
+  { id: "research", name: "Research / Academic", icon: <GraduationCap className="w-6 h-6" /> },
+  { id: "hardware", name: "IoT / Hardware", icon: <Cpu className="w-6 h-6" /> },
+  { id: "health", name: "Healthcare / Biotech", icon: <Stethoscope className="w-6 h-6" /> },
+  { id: "business", name: "MBA / Finance", icon: <Building2 className="w-6 h-6" /> },
 ];
 
 const templates: { id: Template; name: string; desc: string; bg: string; textColor: string }[] = [
@@ -165,12 +173,12 @@ export default function Onboarding() {
                 <h1 className="text-3xl font-bold mb-2">What's your primary role?</h1>
                 <p className="text-zinc-400">Helps our AI tailor language and metrics for your industry.</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {roles.map((r) => (
                   <button key={r.id} onClick={() => setRole(r.name)}
-                    className={`p-6 rounded-xl border text-left transition-all ${role === r.name ? "border-indigo-500 bg-indigo-500/10" : "border-zinc-800 bg-zinc-950 hover:border-zinc-700"}`}>
-                    <div className={`${role === r.name ? "text-indigo-400" : "text-zinc-500"} mb-4`}>{r.icon}</div>
-                    <div className="font-semibold">{r.name}</div>
+                    className={`p-4 rounded-xl border text-left transition-all ${role === r.name ? "border-indigo-500 bg-indigo-500/10" : "border-zinc-800 bg-zinc-950 hover:border-zinc-700"}`}>
+                    <div className={`${role === r.name ? "text-indigo-400" : "text-zinc-500"} mb-3`}>{r.icon}</div>
+                    <div className="font-semibold text-sm">{r.name}</div>
                   </button>
                 ))}
               </div>
