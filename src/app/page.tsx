@@ -22,13 +22,13 @@ const BEFORE_AFTER = [
   {
     label: "Resume Claim",
     bad: true,
-    text: '"I have experience with Python and data processing."',
+    text: '"I managed marketing campaigns and drove growth."',
     subtext: "Generic • Unverified • Forgettable",
   },
   {
     label: "Portfolio.ai Case Study",
     bad: false,
-    text: '"Built a Python pipeline that automated invoice parsing for 2,000+ records/day, reducing processing time from 5 hours to 8 minutes — a 97% efficiency gain."',
+    text: '"Leveraged Google Ads & Facebook to scale campaigns for 12,000+ new leads/month, reducing CAC by 40% — a 150% ROI jump."',
     subtext: "Specific • Quantified • Memorable",
   },
 ];
@@ -67,18 +67,36 @@ function TypewriterEffect() {
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#080808] text-white overflow-x-hidden relative">
+
+      {/* Interactive Cursor Glow */}
+      <motion.div 
+        className="pointer-events-none fixed inset-0 z-0 opacity-50"
+        animate={{
+          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(139, 92, 246, 0.15), transparent 80%)`
+        }}
+        transition={{ type: "tween", ease: "backOut", duration: 0.5 }}
+      />
 
       {/* Terminal grid bg */}
-      <div className="fixed inset-0 pointer-events-none"
+      <div className="fixed inset-0 pointer-events-none z-0"
         style={{ backgroundImage: "linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
 
-      {/* Ambient blobs */}
-      <div className="fixed top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-700/10 blur-[140px] pointer-events-none" />
-      <div className="fixed top-[40%] right-[-15%] w-[500px] h-[500px] rounded-full bg-purple-700/8 blur-[140px] pointer-events-none" />
-      <div className="fixed bottom-0 left-[20%] w-[400px] h-[400px] rounded-full bg-pink-700/6 blur-[120px] pointer-events-none" />
+      {/* Animated Ambient blobs */}
+      <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="fixed top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-600/20 blur-[140px] pointer-events-none z-0" />
+      <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="fixed top-[40%] right-[-15%] w-[500px] h-[500px] rounded-full bg-fuchsia-600/10 blur-[140px] pointer-events-none z-0" />
+      <motion.div animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.3, 0.2] }} transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 2 }} className="fixed bottom-0 left-[20%] w-[400px] h-[400px] rounded-full bg-blue-600/10 blur-[120px] pointer-events-none z-0" />
 
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-900/60 bg-[#080808]/80 backdrop-blur-xl">
@@ -186,11 +204,12 @@ export default function Home() {
 
         {/* Floating cards */}
         {FLOAT_CARDS.map((c, i) => (
-          <div key={i} className={`absolute hidden xl:block glass-card rounded-xl p-4 text-left w-56 border ${c.color}`}
-            style={{ top: c.top, left: c.left, right: c.right, transform: `rotate(${c.rotate})`, animation: `float ${7 + i}s ease-in-out ${c.delay}s infinite` }}>
-            <div className="text-xs text-zinc-500 mb-1 font-mono">{c.label}</div>
-            <div className="text-xs text-zinc-300 font-medium leading-snug">{c.value}</div>
-          </div>
+          <motion.div key={i} drag dragConstraints={heroRef} whileHover={{ scale: 1.05, cursor: "grab" }} whileDrag={{ scale: 1.1, cursor: "grabbing" }}
+            className={`absolute hidden xl:block glass-card rounded-xl p-4 text-left w-56 border ${c.color} shadow-2xl backdrop-blur-xl`}
+            style={{ top: c.top, left: c.left, right: c.right, rotate: c.rotate, animation: `float ${7 + i}s ease-in-out ${c.delay}s infinite` }}>
+            <div className="text-xs font-bold uppercase tracking-widest mb-1 opacity-70">{c.label}</div>
+            <div className="text-sm font-medium leading-snug">{c.value}</div>
+          </motion.div>
         ))}
       </section>
 
