@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, CheckCircle2, GitBranch, FileText, Code, Palette, Database, Download, Upload, X, BarChart3, Megaphone, PenTool, Briefcase, GraduationCap, Cpu, Stethoscope, Building2 } from "lucide-react";
+import { ArrowRight, Sparkles, CheckCircle2, Link as LinkIcon, FileText, Code, Palette, Database, Download, Upload, X, BarChart3, Megaphone, PenTool, Briefcase, GraduationCap, Cpu, Stethoscope, Building2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -210,11 +210,11 @@ export default function Onboarding() {
               </div>
               <div className="space-y-6 p-6 glass-card rounded-2xl">
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-2">GitHub Repository URL</label>
+                  <label className="block text-sm font-medium text-zinc-400 mb-2">GitHub / Project URL</label>
                   <div className="relative">
-                    <GitBranch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+                    <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
                     <input type="url" value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)}
-                      placeholder="https://github.com/username/project"
+                      placeholder="https://github.com/username/project or https://your-site.com"
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-lg py-4 pl-12 pr-4 focus:outline-none focus:border-indigo-500 transition-colors" />
                   </div>
                 </div>

@@ -1,14 +1,14 @@
 "use client";
 
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Zap, GitBranch, FileText, TrendingUp, Star, Terminal } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, ExternalLink, FileText, TrendingUp, Star, Terminal } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
 
 const TYPEWRITER_STRINGS = [
-  "GitHub repository...",
-  "README files...",
-  "code architecture...",
+  "GitHub or project link...",
+  "project description...",
+  "PDF reports...",
   "your impact metrics...",
 ];
 
@@ -169,9 +169,9 @@ export default function Home() {
               </div>
               {/* Terminal body */}
               <div className="bg-zinc-950 p-6 font-mono text-sm space-y-3">
-                <div><span className="text-green-400">$</span> <span className="text-zinc-300">portfolio generate</span> <span className="text-indigo-400">https://github.com/user/project</span></div>
-                <div className="text-zinc-500">  Fetching README.md...</div>
-                <div className="text-zinc-500">  Analyzing code structure...</div>
+                <div><span className="text-green-400">$</span> <span className="text-zinc-300">portfolio generate</span> <span className="text-indigo-400">https://project-link.com</span></div>
+                <div className="text-zinc-500">  Fetching project data...</div>
+                <div className="text-zinc-500">  Analyzing structure...</div>
                 <div className="text-zinc-500">  Extracting impact metrics...</div>
                 <div className="text-green-400">  ✓ Case study generated in 6.2s</div>
                 <div className="mt-4 p-4 rounded-lg bg-zinc-900 border border-zinc-800 space-y-2">
@@ -230,8 +230,8 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { n:"01", icon:<GitBranch className="w-6 h-6"/>, title:"Paste Link or Text", desc:"Drop a GitHub URL or paste your project description. Works for code, PDFs, and plain text reports.", color:"text-indigo-400 bg-indigo-500/10 border-indigo-500/20" },
-              { n:"02", icon:<Zap className="w-6 h-6"/>, title:"AI Extracts Impact", desc:"Gemini reads your README, finds the problem, solution, tech stack, and quantifies your business impact automatically.", color:"text-purple-400 bg-purple-500/10 border-purple-500/20" },
+              { n:"01", icon:<ExternalLink className="w-6 h-6"/>, title:"Paste Link or Text", desc:"Drop a GitHub / Project URL or paste your project description. Works for code, PDFs, and plain text reports.", color:"text-indigo-400 bg-indigo-500/10 border-indigo-500/20" },
+              { n:"02", icon:<Zap className="w-6 h-6"/>, title:"AI Extracts Impact", desc:"Gemini reads your project info, finds the problem, solution, tech stack, and quantifies your business impact automatically.", color:"text-purple-400 bg-purple-500/10 border-purple-500/20" },
               { n:"03", icon:<Star className="w-6 h-6"/>, title:"Publish & Share", desc:"Choose a template, pick your username, and get a live link. Share on LinkedIn, attach the PDF to applications.", color:"text-pink-400 bg-pink-500/10 border-pink-500/20" },
             ].map((s,i)=>(
               <motion.div key={i} initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.15}}
